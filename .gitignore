@@ -1,0 +1,17 @@
+.ipynb_checkpoints/
+.DS_Store
+__pycache__
+results/
+search_results/
+algorithm_compare_results/
+high-dimension-search-results/
+high-dimension-search_results/
+high-dimension-paper-results/
+low-dimension-search-results/
+data-queue*/
+data*/
+experiments/*
+wandb/*
+.neptune
+.virtual_documents/
+LJ_data*
