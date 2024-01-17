@@ -84,15 +84,50 @@ def discretize_continuous_columns(
     test_df: pd.DataFrame,
     column_name: str,
     *,
-    num_quantiles: Union[int, None] = None,
-    bins: Union[List[int], None] = None
+    num_quantiles: Union[int, None] = None,  # noqa
+    bins: Union[List[int], None] = None  # noqa
 ) -> None:
     """
-    Function to discretize continuous columns in a dataset
+    Function to discretize continuous columns in a dataset. Functions will
+    modify the data within the function
     """
     assert (
         num_quantiles is None or bins is None
     ), "num quantiles and bins cannot both be None for this function"
+
+    # quantile featurizing
+    if num_quantiles is not None:
+        _, bins_quantized = pd.qcut(
+            train_df[column_name],
+            num_quantiles,
+            retbins=True,  # Whether to return the (bins, labels) or not. Can be useful if bins is given as a scalar.  # noqa
+            labels=False,
+        )
+
+        # Add feature to train
+        train_df[column_name] = pd.cut(
+            train_df[column_name], bins_quantized, labels=False
+        )
+
+        # Add feature to test
+        test_df[column_name] = pd.cut(
+            test_df[column_name], bins_quantized, labels=False
+        )
+
+    elif bins is not None:
+        # Add feature to train
+        train_df[column_name] = pd.cut(
+            train_df[column_name],
+            bins,
+            labels=False,
+        )
+
+        # Add feature to test
+        test_df[column_name] = pd.cut(
+            test_df[column_name],
+            bins,
+            labels=False,
+        )
 
 
 def get_data():
