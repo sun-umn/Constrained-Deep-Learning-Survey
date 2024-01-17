@@ -13,7 +13,7 @@ def training_generator(
     Function that generates training data for tensorflow and tfco experimentation
     """
     # Set a random seed
-    random.seed(31337)
+    random.seed(123)
 
     # Get the size of the data to create minibatches
     num_rows = train_df.shape[0]
