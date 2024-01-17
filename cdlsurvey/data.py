@@ -87,6 +87,9 @@ def discretize_continuous_columns(
     num_quantiles: Union[int, None] = None,
     bins: Union[List[int], None] = None
 ) -> None:
+    """
+    Function to discretize continuous columns in a dataset
+    """
     pass
 
 
