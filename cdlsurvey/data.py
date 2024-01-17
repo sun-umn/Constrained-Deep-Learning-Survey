@@ -90,7 +90,9 @@ def discretize_continuous_columns(
     """
     Function to discretize continuous columns in a dataset
     """
-    pass
+    assert (
+        num_quantiles is None or bins is None
+    ), "num quantiles and bins cannot both be None for this function"
 
 
 def get_data():
