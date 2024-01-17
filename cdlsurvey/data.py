@@ -59,6 +59,8 @@ def binarize_categorical_columns(
 
     TODO: I think it makes more sense to just binarize data that is in train because
     the signal will be zero for those training samples.
+
+    TODO: Why does my dataset create an error?
     """
     # Get the categorical columns
     categorical_train_df = train_df[columns]
@@ -71,11 +73,15 @@ def binarize_categorical_columns(
     df = pd.concat([categorical_train_df, categorical_test_df], axis=0)
 
     # Binarize the columns with pandas get dummies
-    df = pd.get_dummies(df).astype(int)
+    df = pd.get_dummies(df)
 
     # Split the data back into train and test
-    categorical_train_df = df.query('is_train == 1').reset_index()
-    categorical_test_df = df.query('is_train == 0').reset_index()
+    categorical_train_df = df.query('is_train == 1').reset_index(drop=True)
+    categorical_test_df = df.query('is_train == 0').reset_index(drop=True)
+
+    # Remove is train data
+    categorical_train_df = categorical_train_df.drop(columns=['is_train'])
+    categorical_test_df = categorical_test_df.drop(columns=['is_train'])
 
     return categorical_train_df, categorical_test_df
 
@@ -139,7 +145,6 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     with fairness-constraints
     """
     USEABLE_COLUMNS = CATEGORICAL_COLUMNS + CONTINUOUS_COLUMNS + [LABEL_COLUMN]
-    feature_columns = CATEGORICAL_COLUMNS + CONTINUOUS_COLUMNS
 
     train_filename = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data'  # noqa
     test_filename = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test'  # noqa
@@ -187,7 +192,11 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
 
     # Binarize the columns
     train_df, test_df = binarize_categorical_columns(
-        train_df, test_df, columns=feature_columns
+        train_df, test_df, columns=USEABLE_COLUMNS
     )
 
-    return train_df, test_df, feature_columns
+    # Get feature names
+    feature_names = train_df.columns.tolist()
+    feature_names.remove(LABEL_COLUMN)
+
+    return train_df, test_df, feature_names

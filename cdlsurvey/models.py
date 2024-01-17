@@ -3,9 +3,9 @@ from typing import List, Union
 
 # third party
 import pandas as pd
-import tensorflow
 import tensorflow.compat.v1 as tf
 import tensorflow_constrained_optimization as tfco
+from tensorflow.python.framework import ops
 
 
 class Model:
@@ -67,7 +67,7 @@ class Model:
 
     def build_train_op(
         self, learning_rate: float, *, unconstrained: bool = False
-    ) -> tensorflow.python.framework.ops.Operation:
+    ) -> ops.Operation:
         """
         Training operation for tensorflow and constrained optimization
         """
