@@ -29,6 +29,7 @@ def training_generator(
     session = tf.Session()
     session.run((tf.global_variables_initializer(), tf.local_variables_initializer()))
 
+    # Define the indicies for the minibatch
     minibatch_start_index = 0
     for n in range(num_loops):
         for _ in range(num_iterations_per_loop):
@@ -46,6 +47,7 @@ def training_generator(
                     )
                     minibatch_start_index = minibatch_end_index
 
+            # Run the tensorflow session
             session.run(
                 model.train_op,
                 feed_dict=model.feed_dict_helper(
@@ -53,9 +55,12 @@ def training_generator(
                 ),
             )
 
+        # Get the training predictions
         train_predictions = session.run(
             model.predictions_tensor, feed_dict=model.feed_dict_helper(train_df)
         )
+
+        # Get the test predictions
         test_predictions = session.run(
             model.predictions_tensor, feed_dict=model.feed_dict_helper(test_df)
         )
