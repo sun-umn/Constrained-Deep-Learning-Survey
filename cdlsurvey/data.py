@@ -49,7 +49,7 @@ COLUMNS = [
 LABEL_COLUMN = 'label'
 
 
-def binarize_columns(
+def binarize_categorical_columns(
     train_df: pd.DataFrame, test_df: pd.DataFrame, columns: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -130,11 +130,14 @@ def discretize_continuous_columns(
         )
 
 
-def get_data():
+def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     """
     Function to build the Adult dataset for binary classification
     with fairness-constraints
     """
+    USEABLE_COLUMNS = CATEGORICAL_COLUMNS + CONTINUOUS_COLUMNS + [LABEL_COLUMN]
+    feature_columns = CATEGORICAL_COLUMNS + CONTINUOUS_COLUMNS
+
     train_filename = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data'  # noqa
     test_filename = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test'  # noqa
 
@@ -142,7 +145,44 @@ def get_data():
     train_df = pd.read_csv(train_filename, names=COLUMNS, skipinitialspace=True)
     test_df = pd.read_csv(test_filename, names=COLUMNS, skipinitialspace=True)
 
+    # Create the label column - the label is for the income bracket column
+    # and we identify anyone who makes over $50k
+    train_df[LABEL_COLUMN] = (
+        train_df['income_bracket'].apply(lambda x: x == '>50K')
+    ).astype(int)
+    test_df[LABEL_COLUMN] = (
+        test_df['income_bracket'].apply(lambda x: x == '>50K')
+    ).astype(int)
+
     # Let's add an assertion that all of the columns are the same
     assert train_df.column == test_df.columns
 
-    return train_df, test_df
+    # Default = warn
+    pd.options.mode.chained_assignment = None
+
+    # Process & featurize the data
+    # First filter out irrelevant columns
+    train_df = train_df[USEABLE_COLUMNS].copy()
+    test_df = test_df[USEABLE_COLUMNS].copy()
+
+    # Discretize columns
+    discretize_continuous_columns(train_df, test_df, 'age', num_quantiles=4)
+    discretize_continuous_columns(
+        train_df, test_df, 'capital_gain', bins=[-1, 1, 4000, 10000, 100000]
+    )
+    discretize_continuous_columns(
+        train_df, test_df, 'capital_loss', bins=[-1, 1, 1800, 1950, 4500]
+    )
+    discretize_continuous_columns(
+        train_df, test_df, 'hours_per_week', bins=[0, 39, 41, 50, 100]
+    )
+    discretize_continuous_columns(
+        train_df, test_df, 'education_num', bins=[0, 8, 9, 11, 16]
+    )
+
+    # Binarize the columns
+    train_df, test_df = binarize_categorical_columns(
+        train_df, test_df, columns=feature_columns
+    )
+
+    return train_df, test_df, feature_columns
