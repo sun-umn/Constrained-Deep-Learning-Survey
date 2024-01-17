@@ -2,6 +2,7 @@
 from typing import List, Tuple, Union
 
 # third party
+import numpy as np
 import pandas as pd
 
 # Define the columns that we want to use
@@ -106,12 +107,15 @@ def discretize_continuous_columns(
 
         # Add feature to train
         train_df[column_name] = pd.cut(
-            train_df[column_name], bins_quantized, labels=False
+            train_df[column_name],
+            bins_quantized,
+            labels=False,
+            include_lowest=True,
         )
 
         # Add feature to test
         test_df[column_name] = pd.cut(
-            test_df[column_name], bins_quantized, labels=False
+            test_df[column_name], bins_quantized, labels=False, include_lowest=True
         )
 
     elif bins is not None:
@@ -120,13 +124,12 @@ def discretize_continuous_columns(
             train_df[column_name],
             bins,
             labels=False,
+            include_lowest=True,
         )
 
         # Add feature to test
         test_df[column_name] = pd.cut(
-            test_df[column_name],
-            bins,
-            labels=False,
+            test_df[column_name], bins, labels=False, include_lowest=True
         )
 
 
@@ -143,7 +146,9 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
 
     # Get the train and test data
     train_df = pd.read_csv(train_filename, names=COLUMNS, skipinitialspace=True)
-    test_df = pd.read_csv(test_filename, names=COLUMNS, skipinitialspace=True)
+    test_df = pd.read_csv(
+        test_filename, names=COLUMNS, skipinitialspace=True, skiprows=1
+    )
 
     # Create the label column - the label is for the income bracket column
     # and we identify anyone who makes over $50k
@@ -155,7 +160,7 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     ).astype(int)
 
     # Let's add an assertion that all of the columns are the same
-    assert train_df.column == test_df.columns
+    assert np.all(train_df.columns == test_df.columns)
 
     # Default = warn
     pd.options.mode.chained_assignment = None
