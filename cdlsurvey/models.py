@@ -2,6 +2,7 @@
 from typing import List, Union
 
 # third party
+import pandas as pd
 import tensorflow
 import tensorflow.compat.v1 as tf
 import tensorflow_constrained_optimization as tfco
@@ -15,9 +16,10 @@ class Model:
 
     def __init__(
         self,
-        tpr_max_diff: float = 0.0,
-        protected_columns: Union[List[str], None] = None,
+        tpr_max_diff: float,
+        protected_columns: List[str],
         feature_names: Union[List[str]] = ['label'],
+        label_column: str = 'label',
     ) -> None:
         # Set a tensorflow random seed - came from notebook
         tf.random.set_random_seed(123)
@@ -30,6 +32,9 @@ class Model:
 
         # Set protected columns
         self.protected_columns = protected_columns
+
+        # Label column
+        self.label_column = label_column
 
         # Get the number of features
         num_features = len(self.feature_names)
@@ -96,3 +101,18 @@ class Model:
         self.train_op = opt.minimize(mp)
 
         return self.train_op
+
+    def feed_dict_helper(self, dataframe: pd.DataFrame) -> dict:
+        """
+        Function to feed dictionary
+        """
+        feed_dict = {
+            self.features_placeholder: dataframe[self.feature_names],
+            self.labels_placeholder: dataframe[[self.label_column]],
+        }
+
+        # Iterate over dict
+        for i, protected_attribute in enumerate(self.protected_columns):
+            feed_dict[self.protected_placeholders[i]] = dataframe[[protected_attribute]]
+
+        return feed_dict
