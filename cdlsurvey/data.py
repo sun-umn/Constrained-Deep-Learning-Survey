@@ -138,6 +138,10 @@ def discretize_continuous_columns(
             test_df[column_name], bins, labels=False, include_lowest=True
         )
 
+    # Make a categorical datatype
+    train_df[column_name] = train_df[column_name].astype('category')
+    test_df[column_name] = test_df[column_name].astype('category')
+
 
 def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     """
@@ -158,10 +162,10 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     # Create the label column - the label is for the income bracket column
     # and we identify anyone who makes over $50k
     train_df[LABEL_COLUMN] = (
-        train_df['income_bracket'].apply(lambda x: x == '>50K')
+        train_df['income_bracket'].apply(lambda x: '>50K' in x)
     ).astype(int)
     test_df[LABEL_COLUMN] = (
-        test_df['income_bracket'].apply(lambda x: x == '>50K')
+        test_df['income_bracket'].apply(lambda x: '>50K' in x)
     ).astype(int)
 
     # Let's add an assertion that all of the columns are the same
@@ -178,10 +182,10 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     # Discretize columns
     discretize_continuous_columns(train_df, test_df, 'age', num_quantiles=4)
     discretize_continuous_columns(
-        train_df, test_df, 'capital_gain', bins=[-1, 1, 4000, 10000, 100000]
+        train_df, test_df, 'capital_gain', bins=[0, 1, 4000, 10000, 100000]
     )
     discretize_continuous_columns(
-        train_df, test_df, 'capital_loss', bins=[-1, 1, 1800, 1950, 4500]
+        train_df, test_df, 'capital_loss', bins=[0, 1, 1800, 1950, 4500]
     )
     discretize_continuous_columns(
         train_df, test_df, 'hours_per_week', bins=[0, 39, 41, 50, 100]

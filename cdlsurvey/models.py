@@ -84,7 +84,7 @@ class Model:
         constraints = []
         if not unconstrained:
             for placeholder in self.protected_placeholders:
-                slice_tpr = tfco.postive_prediction_rate(
+                slice_tpr = tfco.positive_prediction_rate(
                     ctx.subset((placeholder > 0) & (self.labels_placeholder > 0))
                 )
                 constraints.append(

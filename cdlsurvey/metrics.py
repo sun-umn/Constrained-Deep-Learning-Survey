@@ -7,20 +7,13 @@ LABEL_COLUMN = 'label'
 PROTECTED_COLUMNS = ['gender_Female', 'gender_Male', 'race_White', 'race_Black']
 
 
-def error_rate(labels, predictions):
+def error_rate(predictions, labels):
     """
-    Function to compute the error rate
+    Computes the error rate
     """
-    signed_labels = (
-        (labels > 0).astype(np.float32) - (labels <= 0).astype(np.float32),
-    )
-
-    # Assign the numerator
-    numerator = (np.multiply(signed_labels.values, predictions.values) <= 0).sum()
-
-    # Assign the denominator
+    signed_labels = (labels > 0).astype(np.float32) - (labels <= 0).astype(np.float32)
+    numerator = (np.multiply(signed_labels, predictions) <= 0).sum()
     denominator = predictions.shape[0]
-
     return float(numerator) / float(denominator)
 
 
