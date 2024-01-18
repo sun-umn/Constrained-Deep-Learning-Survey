@@ -5,6 +5,9 @@ from typing import Generator, List
 # third party
 import tensorflow.compat.v1 as tf
 
+# first party
+from cdlsurvey.metrics import _get_error_rate_and_constraints
+
 
 def training_generator(
     model, train_df, test_df, minibatch_size, num_iterations_per_loop=1, num_loops=1
@@ -66,3 +69,45 @@ def training_generator(
         )
 
         yield (train_predictions, test_predictions)
+
+
+def training_helper(
+    model, train_df, test_df, minibatch_size, num_iterations_per_loop=1, num_loops=1
+):
+    """
+    Function that will help with the training process for tfco
+    """
+    # Initialize lists for the results
+    train_error_rate_vector = []
+    train_constraints_matrix = []
+    test_error_rate_vector = []
+    test_constraints_matrix = []
+
+    # Iterate over the training generator and calculate metrics
+    for train, test in training_generator(
+        model, train_df, test_df, minibatch_size, num_iterations_per_loop, num_loops
+    ):
+        # Assign predictions to dataframe
+        train_df['predictions'] = train
+        test_df['predictions'] = test
+
+        # Compute the error rate and contraints for train
+        train_error_rate, train_constraints = _get_error_rate_and_constraints(
+            train_df, model.tpr_max_diff
+        )
+        train_error_rate_vector.append(train_error_rate)
+        train_constraints_matrix.append(train_constraints)
+
+        # Compute the error rate and constraints for test
+        test_error_rate, test_constraints = _get_error_rate_and_constraints(
+            test_df, model.tpr_max_diff
+        )
+        test_error_rate_vector.append(test_error_rate)
+        test_constraints_matrix.append(test_constraints)
+
+    return (
+        train_error_rate_vector,
+        train_constraints_matrix,
+        test_error_rate_vector,
+        test_constraints_matrix,
+    )
