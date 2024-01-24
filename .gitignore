@@ -19,3 +19,4 @@ exp/
 exp_new/
 model_init/
 bash/
+*.txt

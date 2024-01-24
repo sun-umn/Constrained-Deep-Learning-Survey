@@ -10,7 +10,7 @@ from models import MLP,create_tf_model
 from optimizers import init_optimizer
 
 import tensorflow as tf
-
+from datetime import datetime
 import os
 
 if __name__ == '__main__':
@@ -38,9 +38,14 @@ if __name__ == '__main__':
     DATASET_PATH = cfg.get('DATASET','PATH')
     npz_data = np.load(DATASET_PATH)
 
-    NUM_FEATURES = npz_data['train_X_0'].shape[1]
+    now = datetime.now()
 
-    EXP_FOLDER = os.path.join(BASE_FOLDER,'exp',f'{OPT_NAME}_{DATASET_NAME}')
+    # Format the date and time as a string
+    date_time_str = now.strftime("%Y%m%d_%H%M%S")
+
+    NUM_FEATURES = npz_data['train_X_0'].shape[1]
+    THRESHOLD = cfg.get('EXP','THRESHOLD')
+    EXP_FOLDER = os.path.join(BASE_FOLDER,'exp',f'r_{THRESHOLD}_{date_time_str}',f'{OPT_NAME}_{DATASET_NAME}')
     os.makedirs(EXP_FOLDER,exist_ok=True)
 
     if OPT_NAME == 'PyGRANSO':

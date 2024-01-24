@@ -22,6 +22,7 @@ class problem(tfco.ConstrainedMinimizationProblem):
         self._test_y_0 = tf.constant(data['test_y_0'], dtype=tf.float32)
         self._test_X_1 = tf.constant(data['test_X_1'], dtype=tf.float32)
         self._test_y_1 = tf.constant(data['test_y_1'], dtype=tf.float32)
+        print(self._train_X_0.shape)
 
 
     @property
@@ -142,9 +143,11 @@ class TFCO_problem():
             'accuracy_test':[]
         }
         
-
+        #dual_scale: optional float defaulting to 1, a multiplicative scaling factor
+        #applied to gradients w.r.t. the Lagrange multipliers.
         loss_fn, update_ops_fn, multipliers = tfco.create_lagrangian_loss(
-            self.problem, dual_scale=5.0)
+            self.problem
+            )
         
         optimizer = tf.keras.optimizers.AdamW()#Adagrad() #learning_rate=0.01
         var_list = (list(self.problem.trainable_variables)+ self.model.trainable_weights + [multipliers])
