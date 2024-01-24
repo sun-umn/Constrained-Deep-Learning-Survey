@@ -20,3 +20,5 @@ exp_new/
 model_init/
 bash/
 *.txt
+
+!requirements.txt
