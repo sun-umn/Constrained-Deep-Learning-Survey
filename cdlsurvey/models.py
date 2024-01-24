@@ -59,10 +59,30 @@ class Model:
             for attribute in self.protected_columns
         ]
 
+        # Set up a 2 layer neural network
+        self.first_hidden_layer = tf.layers.dense(
+            inputs=self.features_placeholder,
+            units=64,
+            activation=tf.nn.relu,
+        )
+
+        # Add bn after first layer
+        self.bn1 = tf.layers.batch_normalization(self.first_hidden_layer)
+
+        # Second hidden layer
+        self.second_hidden_layer = tf.layers.dense(
+            inputs=self.bn1,
+            units=64,
+            activation=tf.nn.relu,
+        )
+
+        # Add bn after the second layer
+        self.bn2 = tf.layers.batch_normalization(self.second_hidden_layer)
+
         # We use a linear model
         # This study uses a very simple linear model
         self.predictions_tensor = tf.layers.dense(
-            inputs=self.features_placeholder, units=1, activation=None
+            inputs=self.bn2, units=1, activation=None
         )
 
     def build_train_op(
