@@ -59,8 +59,6 @@ def binarize_categorical_columns(
 
     TODO: I think it makes more sense to just binarize data that is in train because
     the signal will be zero for those training samples.
-
-    TODO: Why does my dataset create an error?
     """
     # Get the categorical columns
     categorical_train_df = train_df[columns]
