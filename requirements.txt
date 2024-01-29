@@ -24,6 +24,10 @@ pyarrow
 seaborn==0.12.2
 tensorflow
 tensorflow-datasets
+aif360
+fairlearn
+'aif360[LawSchoolGPA]'
+xldr
 
 # PyGranso Solver
 git+https://github.com/sun-umn/PyGRANSO.git
