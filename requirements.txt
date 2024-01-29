@@ -28,6 +28,7 @@ aif360
 fairlearn
 'aif360[LawSchoolGPA]'
 xldr
+skorch
 
 # PyGranso Solver
 git+https://github.com/sun-umn/PyGRANSO.git
