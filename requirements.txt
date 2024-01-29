@@ -27,7 +27,7 @@ tensorflow-datasets
 aif360
 fairlearn
 'aif360[LawSchoolGPA]'
-xldr
+xlrd
 skorch
 
 # PyGranso Solver
