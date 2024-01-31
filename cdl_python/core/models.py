@@ -42,7 +42,7 @@ class FairlearnMLP(torch.nn.Module):
         num_classes,
         num_features,
         num_layers=4,
-        layer_width=100,
+        layer_width=128,
         out_activation='Sigmoid',
         training_samples=100,
         testing_samples=100,
