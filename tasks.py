@@ -7,6 +7,7 @@ import click
 import numpy as np
 import pandas as pd
 import torch
+import wandb
 from sklearn.pipeline import Pipeline
 from skorch.callbacks import EpochScoring
 from skorch.dataset import Dataset
@@ -48,6 +49,24 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     Function that will run pytorch MLP model
     with fairlearn for constrained deep learning.
     """
+    API_KEY = '2080070c4753d0384b073105ed75e1f46669e4bf'
+    PROJECT_NAME = 'Constrained-Deep-Learning-Survey'
+
+    # Enable wandb
+    wandb.login(key=API_KEY)
+
+    # Initalize wandb
+    # TODO: Save training and validation curves per fold
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project=PROJECT_NAME,
+        tags=['pytorch-fairlearn'],
+        config={
+            'r': epsilon,
+            'epochs': epochs,
+        },
+    )
+
     # Load in the adult dataset created by Wenjie
     X_train, X_test = get_wenjie_data_for_fairlearn()
 
