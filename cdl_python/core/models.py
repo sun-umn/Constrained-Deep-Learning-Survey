@@ -47,6 +47,7 @@ class FairlearnMLP(torch.nn.Module):
         training_samples=100,
         testing_samples=100,
         sensitive_group=None,
+        bn=False,
     ):
         super(FairlearnMLP, self).__init__()
         # MLP model parameters
@@ -55,7 +56,8 @@ class FairlearnMLP(torch.nn.Module):
             layers.append(
                 nn.Linear(num_features if i == 0 else layer_width, layer_width)
             )
-            layers.append(nn.BatchNorm1d(layer_width))
+            if bn:
+                layers.append(nn.BatchNorm1d(layer_width))
             layers.append(nn.ReLU())
         layers.append(nn.Linear(layer_width, num_classes))
 
