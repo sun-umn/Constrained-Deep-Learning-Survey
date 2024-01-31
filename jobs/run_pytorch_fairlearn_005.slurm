@@ -6,6 +6,6 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=dever120@umn.edu
 #SBATCH -p apollo_agate
-cd /home/jusun/dever120/Deeplifting
+cd /home/jusun/dever120/Constrained-Deep-Learning-Survey
 export PATH=/home/jusun/dever120/miniconda3/envs/deeplifting/bin:$PATH
-python -m tasks run-pytorch-fairlearn --epsilon=0.005 --epochs=10
+python -m tasks run-pytorch-fairlearn --epsilon=0.005 --epochs=300
