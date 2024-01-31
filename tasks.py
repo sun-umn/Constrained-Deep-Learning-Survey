@@ -29,7 +29,8 @@ def cli():  # noqa
 
 @click.command('run-pytorch-fairlearn')
 @click.option('--epsilon', default=0.005)
-def run_pytorch_fairlearn(epsilon: float) -> None:
+@click.option('--epochs', default=300)
+def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     """
     Function that will run pytorch MLP model
     with fairlearn for constrained deep learning.
@@ -104,7 +105,7 @@ def run_pytorch_fairlearn(epsilon: float) -> None:
         optimizer=torch.optim.Adam,
         train_split=predefined_split(test_ds),
         lr=0.0001,
-        max_epochs=300,
+        max_epochs=epochs,
         batch_size=len(X_train),
         callbacks=[
             accuracy,
