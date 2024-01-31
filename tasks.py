@@ -2,6 +2,7 @@
 import os
 
 # third party
+import click
 import numpy as np
 import pandas as pd
 import torch
@@ -21,6 +22,13 @@ from cdlsurvey.utils import get_expgrad_models_per_epsilon, model_performance_sw
 MAIN_DIR = '/home/jusun/dever120/Constrained-Deep-Learning-Survey'
 
 
+@click.group()
+def cli():  # noqa
+    pass
+
+
+@click.command('run-pytorch-fairlearn')
+@click.option('--epsilon', default=0.005)
 def run_pytorch_fairlearn(epsilon: float) -> None:
     """
     Function that will run pytorch MLP model
@@ -201,3 +209,8 @@ def run_pytorch_fairlearn(epsilon: float) -> None:
     # Save filepath
     filename = os.path.join(MAIN_DIR, 'data', 'fairlearn_results.npz')
     np.savez(filename, **data_dict)
+
+
+if __name__ == "__main__":
+    # Be able to run different commands
+    cli()
