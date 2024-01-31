@@ -41,7 +41,7 @@ def cli():  # noqa
     pass
 
 
-@click.command('run-pytorch-fairlearn')
+@cli.command('run-pytorch-fairlearn')
 @click.option('--epsilon', default=0.005)
 @click.option('--epochs', default=300)
 def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
