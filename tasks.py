@@ -172,7 +172,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     feasibility_df = pd.DataFrame(
         [
             (i['train_feasibility'], i['test_feasibility'])
-            for i in inprocess_model.steps[1][1].history
+            for i in inprocess_model.steps[0][1].history
         ],
         columns=['train', 'test'],
     )
@@ -181,7 +181,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     acc_disp_df = pd.DataFrame(
         [
             (i['train_accuracy_disparity'], i['test_accuracy_disparity'])
-            for i in inprocess_model.steps[1][1].history
+            for i in inprocess_model.steps[0][1].history
         ],
         columns=['train', 'test'],
     )
@@ -190,7 +190,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     loss_df = pd.DataFrame(
         [
             (i['train_loss'], i['valid_loss'])
-            for i in inprocess_model.steps[1][1].history
+            for i in inprocess_model.steps[0][1].history
         ],
         columns=['train', 'test'],
     )
@@ -199,7 +199,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     acc_df = pd.DataFrame(
         [
             (i['train_accuracy'], i['valid_acc'])
-            for i in inprocess_model.steps[1][1].history
+            for i in inprocess_model.steps[0][1].history
         ],
         columns=['train', 'test'],
     )
@@ -213,7 +213,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     }
 
     # Save filepath
-    filename = os.path.join(MAIN_DIR, 'data', 'fairlearn_results.npz')
+    filename = os.path.join(MAIN_DIR, 'data', f'fairlearn_results_{epsilon * 2}.npz')
     np.savez(filename, **data_dict)
 
 
