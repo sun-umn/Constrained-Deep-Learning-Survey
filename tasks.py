@@ -17,13 +17,22 @@ from cdl_python.core.models import FairlearnMLP
 from cdlsurvey.cdls import FairClassifier
 from cdlsurvey.data import get_wenjie_data_for_fairlearn
 from cdlsurvey.metrics import accuracy_disparity, feasibility
-from cdlsurvey.utils import get_expgrad_models_per_epsilon, model_performance_sweep
+from cdlsurvey.utils import (
+    calculate_starting_values,
+    get_expgrad_models_per_epsilon,
+    model_performance_sweep,
+)
 
 # Filter warnings
 warnings.filterwarnings('ignore')
 
 # Main directory
 MAIN_DIR = '/home/jusun/dever120/Constrained-Deep-Learning-Survey'
+
+# Model weights path
+MODEL_WEIGHTS_DIR = os.path.join(
+    MAIN_DIR, 'model_weights/MLP_6_Feature101_No_BN/model_pytorch_0.pt'
+)
 
 
 @click.group()
@@ -60,7 +69,13 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
         testing_samples=len(X_test),
         sensitive_group={'train': A_train, 'test': A_test},
     )
+    mlp_model.load_state_dict(torch.load(MODEL_WEIGHTS_DIR))
     mlp_model = mlp_model.to(dtype=torch.double)
+
+    # Compute all starting values
+    feasibility_init, acc_disp_init, mse_init, acc_init = calculate_starting_values(
+        mlp_model, X_train, X_test, y_train, y_test, A_train, A_test
+    )
 
     # For skorch since we already have test data we
     # need to input the test data as a skorch dataset
@@ -170,7 +185,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     # Accuracy in general
     # Get the feasibility / constraint
     feasibility_df = pd.DataFrame(
-        [
+        feasibility_init
+        + [
             (i['train_feasibility'], i['test_feasibility'])
             for i in inprocess_model.steps[0][1].history
         ],
@@ -179,7 +195,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
 
     # Get the accuracy disparity
     acc_disp_df = pd.DataFrame(
-        [
+        acc_disp_init
+        + [
             (i['train_accuracy_disparity'], i['test_accuracy_disparity'])
             for i in inprocess_model.steps[0][1].history
         ],
@@ -188,7 +205,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
 
     # Get the objective trajectory
     loss_df = pd.DataFrame(
-        [
+        mse_init
+        + [
             (i['train_loss'], i['valid_loss'])
             for i in inprocess_model.steps[0][1].history
         ],
@@ -197,7 +215,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
 
     # Get the accuracy
     acc_df = pd.DataFrame(
-        [
+        acc_init
+        + [
             (i['train_accuracy'], i['valid_acc'])
             for i in inprocess_model.steps[0][1].history
         ],
