@@ -168,6 +168,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     epsilons = [epsilon]
 
     # NOTE: Training for all models with this epsilon / r in our paper
+    print('Building fair models ...')
     all_models = {}
     for eps in epsilons:
         all_models[eps] = get_expgrad_models_per_epsilon(
@@ -205,6 +206,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     # Objective loss in general
     # Accuracy in general
     # Get the feasibility / constraint
+    print('Saving all data ...')
+
     feasibility_df = pd.DataFrame(
         feasibility_init
         + [
