@@ -32,8 +32,6 @@ class MLP(torch.nn.Module):
     def forward(self, x, sample_weight=None, **kwargs):
         # Note: Had to use the below to get it to work with the aif360
         # fairness
-        # data = kwargs
-        # x = torch.hstack([v for k, v in data.items()])
         x = self.layers(x)
         return x
 

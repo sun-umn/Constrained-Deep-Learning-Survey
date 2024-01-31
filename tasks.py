@@ -1,5 +1,6 @@
 # stdlib
 import os
+import warnings
 
 # third party
 import click
@@ -17,6 +18,9 @@ from cdlsurvey.cdls import FairClassifier
 from cdlsurvey.data import get_wenjie_data_for_fairlearn
 from cdlsurvey.metrics import accuracy_disparity, feasibility
 from cdlsurvey.utils import get_expgrad_models_per_epsilon, model_performance_sweep
+
+# Filter warnings
+warnings.filterwarnings('ignore')
 
 # Main directory
 MAIN_DIR = '/home/jusun/dever120/Constrained-Deep-Learning-Survey'
@@ -45,8 +49,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     A_test = X_test['sex'].values
 
     # Remove values from training and test
-    X_train = X_train.drop(columns=['sex', 'income'])
-    X_test = X_test.drop(columns=['sex', 'income'])
+    X_train = X_train.drop(columns=['sex', 'income']).values
+    X_test = X_test.drop(columns=['sex', 'income']).values
 
     # Create the model
     mlp_model = FairlearnMLP(
@@ -56,10 +60,11 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
         testing_samples=len(X_test),
         sensitive_group={'train': A_train, 'test': A_test},
     )
+    mlp_model = mlp_model.to(dtype=torch.double)
 
     # For skorch since we already have test data we
     # need to input the test data as a skorch dataset
-    test_ds = Dataset(X_test.values, y_test)
+    test_ds = Dataset(X_test, y_test)
 
     # Build the callbacks for the feasibility measure - for these
     # measures we need to build one for train AND test due to the

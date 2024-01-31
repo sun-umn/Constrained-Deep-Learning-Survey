@@ -218,14 +218,14 @@ def get_wenjie_data_for_fairlearn() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # Load in the female data and create a dataframe
     female_data = adult_data['train_X_0']
-    female_df = pd.DataFrame(female_data)
+    female_df = pd.DataFrame(female_data).copy()
     female_df.columns = [f'feature-{i}' for i in range(female_df.shape[1])]
     female_df['sex'] = 0
     female_df['income'] = adult_data['train_y_0']
 
     # Do the same for the male data
     male_data = adult_data['train_X_1']
-    male_df = pd.DataFrame(male_data)
+    male_df = pd.DataFrame(male_data).copy()
     male_df.columns = [f'feature-{i}' for i in range(male_df.shape[1])]
     male_df['sex'] = 1
     male_df['income'] = adult_data['train_y_1']
@@ -236,14 +236,14 @@ def get_wenjie_data_for_fairlearn() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # We also need to do the same for the testing data
     female_test_data = adult_data['test_X_0']
-    female_test_df = pd.DataFrame(female_test_data)
+    female_test_df = pd.DataFrame(female_test_data).copy()
     female_test_df.columns = [f'feature-{i}' for i in range(female_test_df.shape[1])]
     female_test_df['sex'] = 0
     female_test_df['income'] = adult_data['test_y_0']
 
     # Do the same for the male data
     male_test_data = adult_data['test_X_1']
-    male_test_df = pd.DataFrame(male_test_data)
+    male_test_df = pd.DataFrame(male_test_data).copy()
     male_test_df.columns = [f'feature-{i}' for i in range(male_test_df.shape[1])]
     male_test_df['sex'] = 1
     male_test_df['income'] = adult_data['test_y_1']
