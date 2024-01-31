@@ -64,6 +64,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     # Create the model
     mlp_model = FairlearnMLP(
         num_features=X_train.shape[1],
+        num_layers=6,
         num_classes=1,
         training_samples=len(X_train),
         testing_samples=len(X_test),

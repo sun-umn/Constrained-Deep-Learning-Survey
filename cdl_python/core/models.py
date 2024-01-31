@@ -37,6 +37,10 @@ class MLP(torch.nn.Module):
 
 
 class FairlearnMLP(torch.nn.Module):
+    """
+    MLP to be utilized with fairlearn
+    """
+
     def __init__(
         self,
         num_classes,
