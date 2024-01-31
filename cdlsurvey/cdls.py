@@ -5,7 +5,51 @@ from typing import List, Union
 import pandas as pd
 import tensorflow.compat.v1 as tf
 import tensorflow_constrained_optimization as tfco
+import torch
+from skorch import NeuralNetBinaryClassifier
 from tensorflow.python.framework import ops
+
+
+class FairClassifier(NeuralNetBinaryClassifier):
+    """
+    Customized skorch wrapper build on top of
+    NeuralNetBinaryClassifier to be utilized with
+    the fairlearn library
+    """
+
+    def predict(self, X):
+        predictions = self.predict_proba(X)
+        predictions = (predictions > self.threshold).astype(int)
+        return predictions
+
+    def get_loss(self, y_pred, y_true, X=None, training=False):
+        y_true = torch.tensor(y_true, dtype=torch.double, device=self.device)
+        # Train condition
+        train_sample_weight = self.module_.train_sample_weight
+        test_sample_weight = self.module_.test_sample_weight
+        train_condition = (
+            train_sample_weight is not None
+            and self.module_.training_samples == len(y_true)
+        )
+        test_condition = (
+            test_sample_weight is not None
+            and self.module_.testing_samples == len(y_true)
+        )
+        if train_condition:
+            sample_weight = self.module_.train_sample_weight
+        elif test_condition:
+            sample_weight = self.module_.test_sample_weight
+        else:
+            sample_weight = None
+
+        if sample_weight is not None:
+            loss = self.criterion(y_pred, y_true)
+            loss = loss * torch.tensor(sample_weight, dtype=torch.double)
+            loss = loss.mean()
+        else:
+            loss = self.criterion_(y_pred, y_true).mean()
+
+        return loss
 
 
 class Model:

@@ -49,6 +49,9 @@ COLUMNS = [
 # label column
 LABEL_COLUMN = 'label'
 
+# Adult data dir
+DATA_DIR = '/home/jusun/dever120/Constrained-Deep-Learning-Survey/data/adult/adult.npz'
+
 
 def binarize_categorical_columns(
     train_df: pd.DataFrame, test_df: pd.DataFrame, columns: List[str]
@@ -90,7 +93,7 @@ def discretize_continuous_columns(
     column_name: str,
     *,
     num_quantiles: Union[int, None] = None,  # noqa
-    bins: Union[List[int], None] = None  # noqa
+    bins: Union[List[int], None] = None,  # noqa
 ) -> None:
     """
     Function to discretize continuous columns in a dataset. Functions will
@@ -202,3 +205,51 @@ def get_data() -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     feature_names.remove(LABEL_COLUMN)
 
     return train_df, test_df, feature_names
+
+
+def get_wenjie_data_for_fairlearn() -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Function that gets the dataset created by Wenjie.
+
+    NOTE: Female data comes from X_train_0
+    and Male data comes from X_train_1
+    """
+    adult_data = np.load(DATA_DIR)
+
+    # Load in the female data and create a dataframe
+    female_data = adult_data['train_X_0']
+    female_df = pd.DataFrame(female_data)
+    female_df.columns = [f'feature-{i}' for i in range(female_df.shape[1])]
+    female_df['sex'] = 0
+    female_df['income'] = adult_data['train_y_0']
+
+    # Do the same for the male data
+    male_data = adult_data['train_X_1']
+    male_df = pd.DataFrame(male_data)
+    male_df.columns = [f'feature-{i}' for i in range(male_df.shape[1])]
+    male_df['sex'] = 1
+    male_df['income'] = adult_data['train_y_1']
+
+    # Concatenate the dataframes
+    X_train = pd.concat([female_df, male_df], axis=0)
+    print(f'The shape of the traing data {X_train.shape}')
+
+    # We also need to do the same for the testing data
+    female_test_data = adult_data['test_X_0']
+    female_test_df = pd.DataFrame(female_test_data)
+    female_test_df.columns = [f'feature-{i}' for i in range(female_test_df.shape[1])]
+    female_test_df['sex'] = 0
+    female_test_df['income'] = adult_data['test_y_0']
+
+    # Do the same for the male data
+    male_test_data = adult_data['test_X_1']
+    male_test_df = pd.DataFrame(male_test_data)
+    male_test_df.columns = [f'feature-{i}' for i in range(male_test_df.shape[1])]
+    male_test_df['sex'] = 1
+    male_test_df['income'] = adult_data['test_y_1']
+
+    # Concatenate the dataframes
+    X_test = pd.concat([female_test_df, male_test_df], axis=0)
+    print(f'The shape of the test data {X_test.shape}')
+
+    return X_train, X_test
