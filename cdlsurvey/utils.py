@@ -218,8 +218,8 @@ def calculate_starting_values(model, X_train, X_test, y_train, y_test, A_train, 
     """
     # First we need to turn X_train and X_test into
     # torch.Tensors
-    X_train = torch.tensor(X_train.values, dtype=torch.double)
-    X_test = torch.tensor(X_test.values, dtype=torch.double)
+    X_train = torch.tensor(X_train, dtype=torch.double)
+    X_test = torch.tensor(X_test, dtype=torch.double)
 
     # Get the predictions
     x_train_predictions = model(X_train).flatten().detach().cpu().numpy()
