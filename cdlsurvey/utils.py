@@ -3,11 +3,13 @@ import random
 from typing import Generator, List
 
 # third party
+import numpy as np
 import pandas as pd
 import tensorflow.compat.v1 as tf
+import torch
 from fairlearn.metrics import equalized_odds_difference
 from fairlearn.reductions import EqualizedOdds, ExponentiatedGradient
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, mean_squared_error
 
 # first party
 from cdlsurvey.metrics import _get_error_rate_and_constraints
@@ -207,3 +209,76 @@ def model_performance_sweep(models_dict, X_test, y_test, A_test):
         columns=["epsilon", "index", "equalized_odds", "balanced_error"],
     )
     return performances_df
+
+
+def calculate_starting_values(model, X_train, X_test, y_train, y_test, A_train, A_test):
+    """
+    Function to compute the values of the metrics before
+    any training starts
+    """
+    # First we need to turn X_train and X_test into
+    # torch.Tensors
+    X_train = torch.tensor(X_train.values, dtype=torch.double)
+    X_test = torch.tensor(X_test.values, dtype=torch.double)
+
+    # Get the predictions
+    x_train_predictions = model(X_train).flatten().detach().cpu().numpy()
+    x_test_predictions = model(X_test).flatten().detach().cpu().numpy()
+
+    # Masks
+    train_male_mask = A_train == 1
+    train_female_mask = A_train == 0
+    test_male_mask = A_test == 1
+    test_female_mask = A_test == 0
+
+    # Calulate the differnece in MSE per group
+    train_male_mse = mean_squared_error(
+        y_train[train_male_mask], x_train_predictions[train_male_mask]
+    )
+    train_female_mse = mean_squared_error(
+        y_train[train_female_mask], x_train_predictions[train_female_mask]
+    )
+    train_const = np.abs(train_male_mse - train_female_mse)
+
+    test_male_mse = mean_squared_error(
+        y_test[test_male_mask], x_test_predictions[test_male_mask]
+    )
+    test_female_mse = mean_squared_error(
+        y_test[test_female_mask], x_test_predictions[test_female_mask]
+    )
+    test_const = np.abs(test_male_mse - test_female_mse)
+
+    # Calculate the disparity in accuracy
+    x_train_binary_preds = (x_train_predictions >= 0.5).astype(int)
+    x_test_binary_preds = (x_test_predictions >= 0.5).astype(int)
+
+    train_male_acc = accuracy_score(
+        y_train[train_male_mask], x_train_binary_preds[train_male_mask]
+    )
+    train_female_acc = accuracy_score(
+        y_train[train_female_mask], x_train_binary_preds[train_female_mask]
+    )
+    train_acc_disp = np.abs(train_male_acc - train_female_acc)
+
+    test_male_acc = accuracy_score(
+        y_test[test_male_mask], x_test_binary_preds[test_male_mask]
+    )
+    test_female_acc = accuracy_score(
+        y_test[test_female_mask], x_test_binary_preds[test_female_mask]
+    )
+    test_acc_disp = np.abs(test_male_acc - test_female_acc)
+
+    # Compute the overall MSE for train and test
+    train_mse = mean_squared_error(y_train, x_train_predictions)
+    test_mse = mean_squared_error(y_test, x_test_predictions)
+
+    # Compute the overall accuracy
+    train_acc = accuracy_score(y_train, x_train_binary_preds)
+    test_acc = accuracy_score(y_test, x_test_binary_preds)
+
+    return (
+        [(train_const, test_const)],
+        [(train_acc_disp, test_acc_disp)],
+        [(train_mse, test_mse)],
+        [(train_acc, test_acc)],
+    )
