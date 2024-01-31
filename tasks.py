@@ -154,6 +154,7 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
             train_accuracy_disparity,
             test_accuracy_disparity,
         ],
+        verbose=0,  # For long experiments we can shut this off
     )
 
     # MLP from our cdl survey
@@ -254,6 +255,8 @@ def run_pytorch_fairlearn(epsilon: float, epochs: int) -> None:
     # Save filepath
     filename = os.path.join(MAIN_DIR, 'data', f'fairlearn_results_{epsilon * 2}.npz')
     np.savez(filename, **data_dict)
+
+    print('Run completed!')
 
 
 if __name__ == "__main__":
