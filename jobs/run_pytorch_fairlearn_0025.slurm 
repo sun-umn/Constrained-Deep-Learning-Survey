@@ -8,4 +8,4 @@
 #SBATCH -p apollo_agate
 cd /home/jusun/dever120/Constrained-Deep-Learning-Survey
 export PATH=/home/jusun/dever120/miniconda3/envs/deeplifting/bin:$PATH
-python -m tasks run-pytorch-fairlearn --epsilon=0.0025 --epochs=300
+python -m tasks run-pytorch-fairlearn --epsilon=0.0025 --epochs=500
